@@ -5,10 +5,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract LogicV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract OpzUupsLogicV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     uint public value;
 
     function initialize() public initializer {
+        value = 10;
         __Ownable_init();
         __UUPSUpgradeable_init();
     }
@@ -21,7 +22,7 @@ contract LogicV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 }
 
-contract LogicV2 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract OpzUupsLogicV2 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     uint public value;
 
     function initialize() public initializer {
@@ -36,6 +37,10 @@ contract LogicV2 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function increaseValue() external {
+        ++value;
+    }
+
+    function decreaseValue() external {
         --value;
     }
 }

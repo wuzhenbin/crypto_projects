@@ -3,11 +3,13 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract OpenLogic is Initializable {
+contract OpzTransparentLogicV1 is Initializable {
     uint public value;
+    string public words;
 
     function initialize(uint _value) public initializer {
         value = _value;
+        words = "logic1";
     }
 
     function increaseValue() external {
@@ -15,11 +17,13 @@ contract OpenLogic is Initializable {
     }
 }
 
-contract OpenLogicV2 is Initializable {
+contract OpzTransparentLogicV2 is Initializable {
     uint public value;
+    string public words;
 
     function initialize(uint _value) public initializer {
         value = _value;
+        words = "logic2";
     }
 
     function increaseValue() external {

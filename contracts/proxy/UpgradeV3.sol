@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-contract UUPSProxy {
+contract UpgradeV3Proxy {
     address public implementation;
     address public admin;
     string public words;
@@ -12,13 +12,22 @@ contract UUPSProxy {
     }
 
     fallback() external payable {
-        (bool success, bytes memory data) = implementation.delegatecall(
+        _delegate();
+    }
+
+    receive() external payable {
+        _delegate();
+    }
+
+    function _delegate() public payable {
+        (bool success /* bytes memory data */, ) = implementation.delegatecall(
             msg.data
         );
+        require(success);
     }
 }
 
-contract UUPS1 {
+contract UpgradeV3Logic1 {
     address public implementation;
     address public admin;
     string public words;
@@ -33,22 +42,13 @@ contract UUPS1 {
     }
 }
 
-contract UUPS2 {
+contract UpgradeV3Logic2 {
     address public implementation;
     address public admin;
     string public words;
-    uint256 private score;
 
     function foo() public {
         words = "new";
-    }
-
-    function getScore() external view returns (uint256) {
-        return score;
-    }
-
-    function writeScore(uint256 _score) public {
-        score = _score;
     }
 
     function upgrade(address newImplementation) external {
