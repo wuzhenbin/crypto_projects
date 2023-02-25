@@ -30,14 +30,10 @@ const getSignature = async (users, hash) => {
     return signature
 }
 
-// 获取合约或账户余额
-const getBalance = ethers.provider.getBalance
-
 module.exports = {
     eth2big,
     big2eth,
     getBlockTime,
-    getBalance,
     increaseTime,
     getSignature,
 }
