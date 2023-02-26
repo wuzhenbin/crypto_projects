@@ -10,3 +10,5 @@ hh test test/chainlink/PriceFeed.test.js
 hh test test/chainlink/VRFV1.test.js
 hh test test/chainlink/VRFV2.test.js
 hh test test/chainlink/AutoCompatibleCounter.test.js
+
+hh test test/Lottery/Raffle.test.js

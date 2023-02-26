@@ -21,11 +21,6 @@ error Raffle__UpkeepNotNeeded(
     uint256 raffleState
 );
 
-/**@title A sample Raffle Contract
- * @author Patrick Collins
- * @notice This contract is for creating a sample raffle contract
- * @dev This implements the Chainlink VRF Version 2
- */
 contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     /* Type declarations */
     enum RaffleState {
@@ -43,7 +38,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     uint256 private immutable i_interval;
 
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
-    bytes32 private immutable i_gasLane;
+    bytes32 private immutable i_keyhash;
     uint64 private immutable i_subscriptionId;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private immutable i_callbackGasLimit;
@@ -56,14 +51,14 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     constructor(
         address vrfCoordinatorV2,
         uint256 entranceFee,
-        bytes32 gasLane, // keyHash
+        bytes32 keyhash, // keyHash
         uint64 subscriptionId,
         uint32 callbackGasLimit,
         uint256 interval
     ) VRFConsumerBaseV2(vrfCoordinatorV2) {
         i_entranceFee = entranceFee;
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
-        i_gasLane = gasLane;
+        i_keyhash = keyhash;
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
         s_raffleState = RaffleState.OPEN;
@@ -79,20 +74,9 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
             revert Raffle__RaffleNotOpen();
         }
         s_players.push(payable(msg.sender));
-        // emit an event when we update a dynamic array or mapping
-        // named events with the function name reversed
         emit RaffleEnter(msg.sender);
     }
 
-    /**
-     * @dev This is the function that the Chainlink Keeper nodes call
-     * they look for `upkeepNeeded` to return True.
-     * the following should be true for this to return true:
-     * 1. The time interval has passed between raffle runs.
-     * 2. The lottery is open.
-     * 3. The contract has ETH.
-     * 4. The contract has at least one player
-     */
     function checkUpkeep(
         bytes memory /* checkData */
     )
@@ -110,12 +94,6 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     function performUpkeep(bytes calldata /* performData */) external override {
-        // request the random number
-        // once we get it, do something with it
-        // 2 transaction process
-        // 如果一个过程 别人可以蛮力尝试模拟调用这个交易
-        // 要保证绝对公平
-        // 确保 checkUpkeep 为true的时候才能调用
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
             revert Raffle__UpkeepNotNeeded(
@@ -127,7 +105,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
         s_raffleState = RaffleState.CALCULATING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
-            i_gasLane, //gaslane
+            i_keyhash, //keyhash
             i_subscriptionId,
             REQUEST_CONFIRMATIONS,
             i_callbackGasLimit,
@@ -136,8 +114,6 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit RequestedRaffleWinner(requestId);
     }
 
-    // 满足随机数
-    // https://github.com/smartcontractkit/chainlink/blob/develop/contracts/src/v0.8/VRFConsumerBase.sol
     function fulfillRandomWords(
         uint256 /* requestId */,
         uint256[] memory randomWords
@@ -150,7 +126,6 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
-        // require(success, "Transfer failed");
         if (!success) {
             revert Raffle__TransferFailed();
         }
