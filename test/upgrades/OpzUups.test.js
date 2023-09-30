@@ -7,7 +7,7 @@ if (!developmentChains.includes(network.name)) {
     describe.skip
 } else {
     describe("OpzUups Unit Tests", function () {
-        let owner, user1, proxy, Logic1Contract, Logic2Contract, logicAddr
+        let owner, user1, proxy, Logic1Contract, Logic2Contract
 
         beforeEach(async () => {
             ;[owner, user1] = await ethers.getSigners()
@@ -19,8 +19,6 @@ if (!developmentChains.includes(network.name)) {
                 initializer: "initialize",
                 kind: "uups",
             })
-
-            logicAddr = upgrades.erc1967.getImplementationAddress
         })
 
         it("inital correctly", async () => {
@@ -30,9 +28,13 @@ if (!developmentChains.includes(network.name)) {
         })
 
         it("upgrade logic", async () => {
-            let logic1 = await logicAddr(proxy.address)
+            let logic1 = await upgrades.erc1967.getImplementationAddress(
+                proxy.address
+            )
             proxy = await upgrades.upgradeProxy(proxy, Logic2Contract)
-            let logic2 = await logicAddr(proxy.address)
+            let logic2 = await upgrades.erc1967.getImplementationAddress(
+                proxy.address
+            )
             expect(logic1).to.not.equal(logic2)
 
             await proxy.increaseValue()

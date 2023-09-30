@@ -6,6 +6,8 @@ hh test test/proxy/MinialProxy.test.js
 hh test test/upgrades/OpzTransparent.test.js
 hh test test/upgrades/OpzUups.test.js
 
+hh test test/newUpgrade/UupsFactoryContract.test.js
+
 hh test test/chainlink/PriceFeed.test.js
 hh test test/chainlink/VRFV1.test.js
 hh test test/chainlink/VRFV2.test.js
